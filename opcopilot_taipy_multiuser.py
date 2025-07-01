@@ -11,6 +11,7 @@ import plotly.graph_objects as go
 import json
 from datetime import datetime, timedelta
 import hashlib
+import os
 
 # ==============================================================================
 # ✅ SUPPRESSION COMPLÈTE DES VARIABLES GLOBALES PROBLÉMATIQUES
@@ -606,11 +607,15 @@ if __name__ == "__main__":
     
     app = create_multiuser_app()
     
-    # Configuration serveur pour multi-utilisateurs
+    # ✅ Port dynamique pour Railway/Heroku/déploiement cloud
+    port = int(os.environ.get("PORT", 5000))
+    print(f"🌐 Démarrage sur port: {port}")
+    
+    # Configuration serveur pour multi-utilisateurs + déploiement
     app.run(
         title="OPCOPILOT v4.0 - Multi-Utilisateurs",
-        port=5000,
-        debug=True,
-        use_reloader=True,
-        host="0.0.0.0"  # Accepte connexions externes pour test
+        port=port,
+        debug=os.environ.get("ENV") != "production",  # Debug OFF en production
+        use_reloader=False,  # Reloader OFF pour déploiement
+        host="0.0.0.0"  # Accepte connexions externes
     )
