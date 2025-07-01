@@ -1,1 +1,1 @@
-web: python opcopilot_taipy_multiuser.py
+web: python opcopilot_taipy.py
