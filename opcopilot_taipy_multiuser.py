@@ -1,7 +1,8 @@
 """
-OPCOPILOT v4.0 - Application Taipy MULTI-UTILISATEURS CORRIGÉE
-🚨 CORRECTION CRITIQUE : Variables globales → state.variable
-Chaque ACO a sa propre session isolée
+OPCOPILOT v4.0 - Application Taipy MULTI-UTILISATEURS
+VERSION ASCII CLEAN - Compatible Railway
+Gestion d'operations immobilieres SPIC Guadeloupe
+Sessions isolees par utilisateur
 """
 
 from taipy.gui import Gui, Markdown, navigate
@@ -14,20 +15,7 @@ import hashlib
 import os
 
 # ==============================================================================
-# ✅ SUPPRESSION COMPLÈTE DES VARIABLES GLOBALES PROBLÉMATIQUES
-# ==============================================================================
-
-# ❌ SUPPRIMÉ - Variables globales qui causaient collisions :
-# authenticated = False
-# current_user = None  
-# user_data = None
-# current_page = "login"
-# selected_operation = None
-
-# ✅ REMPLACEMENT : Tout est maintenant dans state.variable
-
-# ==============================================================================
-# DONNÉES STATIQUES (LECTURE SEULE - PARTAGÉES SANS PROBLÈME)
+# DONNEES STATIQUES (LECTURE SEULE - PARTAGEES SANS PROBLEME)
 # ==============================================================================
 
 # Base utilisateurs (lecture seule - pas de collision)
@@ -36,7 +24,7 @@ DEMO_ACO_USERS = {
         "password": "password1",
         "nom": "Pierre DUPONT",
         "role": "ACO",
-        "secteur": "Les Abymes - Pointe-à-Pitre",
+        "secteur": "Les Abymes - Pointe-a-Pitre",
         "operations": 18
     },
     "aco2": {
@@ -57,17 +45,17 @@ DEMO_ACO_USERS = {
         "password": "spic2024",
         "nom": "Marie-Claire ADMIN",
         "role": "ACO_SENIOR", 
-        "secteur": "Les Abymes - Pointe-à-Pitre",
+        "secteur": "Les Abymes - Pointe-a-Pitre",
         "operations": 23
     }
 }
 
-# Données démo (lecture seule - partagées sans problème)
+# Donnees demo (lecture seule - partagees sans probleme)
 DEMO_DATA = {
     'operations_demo': [
         {
             'id': 1,
-            'nom': 'RÉSIDENCE SOLEIL',
+            'nom': 'RESIDENCE SOLEIL',
             'type_operation': 'OPP',
             'commune': 'Les Abymes',
             'statut': 'EN_COURS',
@@ -83,7 +71,7 @@ DEMO_DATA = {
             'id': 2,
             'nom': 'COUR CHARNEAU',
             'type_operation': 'OPP',
-            'commune': 'Pointe-à-Pitre',
+            'commune': 'Pointe-a-Pitre',
             'statut': 'EN_RECEPTION',
             'avancement': 95,
             'budget_total': 1850000,
@@ -122,13 +110,13 @@ DEMO_DATA = {
 }
 
 # ==============================================================================
-# ✅ FONCTIONS D'INITIALISATION STATE PAR UTILISATEUR
+# FONCTIONS D'INITIALISATION STATE PAR UTILISATEUR
 # ==============================================================================
 
 def init_user_state(state):
     """
-    Initialise l'état pour chaque nouvelle session utilisateur
-    🔒 CRITIQUE : Chaque utilisateur a son propre state
+    Initialise l'etat pour chaque nouvelle session utilisateur
+    CRITIQUE : Chaque utilisateur a son propre state
     """
     # Variables d'authentification PER USER
     if not hasattr(state, 'authenticated'):
@@ -154,18 +142,18 @@ def init_user_state(state):
     if not hasattr(state, 'error_message'):
         state.error_message = ""
     
-    # Variables métier PER USER
+    # Variables metier PER USER
     if not hasattr(state, 'user_operations'):
         state.user_operations = []
     if not hasattr(state, 'user_kpis'):
         state.user_kpis = {}
 
 # ==============================================================================
-# ✅ FONCTIONS D'AUTHENTIFICATION CORRIGÉES  
+# FONCTIONS D'AUTHENTIFICATION CORRIGEES  
 # ==============================================================================
 
 def verify_password(username, password):
-    """Vérification identifiants (fonction pure - pas de state)"""
+    """Verification identifiants (fonction pure - pas de state)"""
     if username in DEMO_ACO_USERS:
         stored_password = DEMO_ACO_USERS[username]["password"]
         return stored_password == password
@@ -173,10 +161,10 @@ def verify_password(username, password):
 
 def login_action(state):
     """
-    ✅ CORRIGÉ : Action de connexion avec state isolé
-    Chaque utilisateur connecté a sa propre session
+    CORRIGE : Action de connexion avec state isole
+    Chaque utilisateur connecte a sa propre session
     """
-    # Initialisation state si nécessaire
+    # Initialisation state si necessaire
     init_user_state(state)
     
     # Reset message d'erreur
@@ -185,13 +173,13 @@ def login_action(state):
     # Validation connexion
     if state.username_input and state.password_input:
         if verify_password(state.username_input, state.password_input):
-            # ✅ Connexion réussie - DONNÉES ISOLÉES PAR UTILISATEUR
+            # Connexion reussie - DONNEES ISOLEES PAR UTILISATEUR
             state.authenticated = True
             state.current_user = state.username_input
             state.user_data = DEMO_ACO_USERS[state.username_input].copy()  # Copie pour isolation
             state.current_page = "dashboard"
             
-            # Chargement des données spécifiques à cet utilisateur
+            # Chargement des donnees specifiques a cet utilisateur
             load_user_specific_data(state)
             
             # Reset champs connexion
@@ -201,13 +189,13 @@ def login_action(state):
             # Navigation vers dashboard
             navigate(state, "dashboard")
         else:
-            state.error_message = "❌ Identifiants incorrects"
+            state.error_message = "Identifiants incorrects"
     else:
-        state.error_message = "⚠️ Veuillez remplir tous les champs"
+        state.error_message = "Veuillez remplir tous les champs"
 
 def logout_action(state):
     """
-    ✅ CORRIGÉ : Déconnexion avec nettoyage state utilisateur
+    CORRIGE : Deconnexion avec nettoyage state utilisateur
     """
     # Reset complet de la session utilisateur
     state.authenticated = False
@@ -225,24 +213,24 @@ def logout_action(state):
 
 def load_user_specific_data(state):
     """
-    Charge les données spécifiques à l'utilisateur connecté
-    🔒 ISOLATION : Chaque ACO voit ses propres données
+    Charge les donnees specifiques a l'utilisateur connecte
+    ISOLATION : Chaque ACO voit ses propres donnees
     """
     if state.authenticated and state.current_user:
-        # Filtrage des opérations par ACO (simulation)
+        # Filtrage des operations par ACO (simulation)
         user_role = state.user_data.get('role', 'ACO')
         user_sector = state.user_data.get('secteur', '')
         
-        # Simulation : filtrer opérations selon le secteur ACO
+        # Simulation : filtrer operations selon le secteur ACO
         all_operations = DEMO_DATA['operations_demo']
         if user_role == 'ACO':
-            # ACO voit seulement les opérations de son secteur
-            state.user_operations = [op for op in all_operations if 'Les Abymes' in user_sector or 'Pointe-à-Pitre' in user_sector]
+            # ACO voit seulement les operations de son secteur
+            state.user_operations = [op for op in all_operations if 'Les Abymes' in user_sector or 'Pointe-a-Pitre' in user_sector]
         else:
-            # ACO_SENIOR voit toutes les opérations
+            # ACO_SENIOR voit toutes les operations
             state.user_operations = all_operations.copy()
         
-        # KPIs spécifiques à l'utilisateur
+        # KPIs specifiques a l'utilisateur
         state.user_kpis = DEMO_DATA['kpis_aco_demo'].copy()
         
         # Ajustement des KPIs selon l'utilisateur
@@ -257,31 +245,31 @@ def load_user_specific_data(state):
             state.user_kpis['rem_realisee_2024'] = 245000
 
 # ==============================================================================
-# ✅ FONCTIONS DE NAVIGATION CORRIGÉES
+# FONCTIONS DE NAVIGATION CORRIGEES
 # ==============================================================================
 
 def nav_dashboard(state):
-    """✅ Navigation dashboard avec state isolé"""
+    """Navigation dashboard avec state isole"""
     init_user_state(state)
     if state.authenticated:
         state.current_page = "dashboard"
         navigate(state, "dashboard")
 
 def nav_portefeuille(state):
-    """✅ Navigation portefeuille avec state isolé"""
+    """Navigation portefeuille avec state isole"""
     init_user_state(state)
     if state.authenticated:
         state.current_page = "portefeuille"
         navigate(state, "portefeuille")
 
 def nav_operation(state, operation_id):
-    """✅ Navigation opération avec state isolé"""
+    """Navigation operation avec state isole"""
     init_user_state(state)
     if state.authenticated:
         state.current_page = "operation_details"
         state.selected_operation_id = operation_id
         
-        # Recherche opération dans les données utilisateur
+        # Recherche operation dans les donnees utilisateur
         for op in state.user_operations:
             if op['id'] == operation_id:
                 state.selected_operation = op.copy()  # Copie pour isolation
@@ -290,12 +278,12 @@ def nav_operation(state, operation_id):
         navigate(state, "operation_details")
 
 # ==============================================================================
-# ✅ CSS STYLES (INCHANGÉ - PAS DE PROBLÈME MULTI-USERS)
+# CSS STYLES (SANS EMOJIS)
 # ==============================================================================
 
 css_styles = """
 <style>
-/* THÈME MODERNE VIOLET-BLEU-VERT */
+/* THEME MODERNE VIOLET-BLEU-VERT */
 .taipy-page {
     background-color: #F9FAFB !important;
     font-family: 'Inter', 'Segoe UI', sans-serif;
@@ -415,28 +403,28 @@ css_styles = """
 """
 
 # ==============================================================================
-# ✅ PAGES TAIPY CORRIGÉES AVEC STATE
+# PAGES TAIPY CORRIGEES AVEC STATE (SANS EMOJIS)
 # ==============================================================================
 
 def get_login_page():
-    """✅ Page de connexion avec state isolé"""
+    """Page de connexion avec state isole"""
     return css_styles + """
 <div class="main-header">
-    <h1>🏗️ OPCOPILOT v4.0</h1>
-    <h2>Tableau de Bord Opérationnel</h2>
-    <p>SPIC Guadeloupe - Interface Multi-Utilisateurs Sécurisée</p>
+    <h1>OPCOPILOT v4.0</h1>
+    <h2>Tableau de Bord Operationnel</h2>
+    <p>SPIC Guadeloupe - Interface Multi-Utilisateurs Securisee</p>
 </div>
 
 <div class="login-container">
-    <div class="login-title">🔐 Connexion ACO</div>
+    <div class="login-title">Connexion ACO</div>
     
-    **👤 Identifiant**
+    **Identifiant**
     <|{username_input}|text|class_name=login-input|>
     
-    **🔑 Mot de passe**
+    **Mot de passe**
     <|{password_input}|text|password=True|class_name=login-input|>
     
-    <|🚀 Se connecter|button|on_action=login_action|class_name=taipy-button|>
+    <|Se connecter|button|on_action=login_action|class_name=taipy-button|>
     
     <|part|render={error_message != ""}|
     <div class="error-message">{error_message}</div>
@@ -445,100 +433,100 @@ def get_login_page():
 
 ---
 
-**💡 Comptes de test multi-utilisateurs :**
-- **aco1** / password1 (Pierre DUPONT - 18 opérations)
-- **aco2** / password2 (Sophie MARTIN - 25 opérations)  
-- **aco3** / password3 (Alexandre BERNARD - 12 opérations)
+**Comptes de test multi-utilisateurs :**
+- **aco1** / password1 (Pierre DUPONT - 18 operations)
+- **aco2** / password2 (Sophie MARTIN - 25 operations)  
+- **aco3** / password3 (Alexandre BERNARD - 12 operations)
 
-**🧪 TEST : Ouvrez plusieurs onglets et connectez différents ACO simultanément !**
+**TEST : Ouvrez plusieurs onglets et connectez differents ACO simultanement !**
 """
 
 def get_dashboard_page():
-    """✅ Dashboard avec données utilisateur isolées"""
+    """Dashboard avec donnees utilisateur isolees"""
     return css_styles + """
 <|part|render={not authenticated}|
 <div class="error-message">
-    ❌ Accès non autorisé - Veuillez vous connecter
+    Acces non autorise - Veuillez vous connecter
 </div>
-<|← Retour connexion|button|on_action={lambda s: navigate(s, "login")}|>
+<|Retour connexion|button|on_action={lambda s: navigate(s, "login")}|>
 |>
 
 <|part|render={authenticated}|
 <div class="main-header">
-    <h1>🏗️ OPCOPILOT v4.0 - Tableau de Bord</h1>
-    <h2>👤 {user_data['nom'] if user_data else 'ACO'}</h2>
-    <p>🏢 {user_data['secteur'] if user_data else 'Secteur'} • Session Isolée</p>
+    <h1>OPCOPILOT v4.0 - Tableau de Bord</h1>
+    <h2>{user_data['nom'] if user_data else 'ACO'}</h2>
+    <p>{user_data['secteur'] if user_data else 'Secteur'} • Session Isolee</p>
 </div>
 
 <div class="user-info">
-    🔒 <strong>Session Sécurisée:</strong> {current_user} • 
-    👥 <strong>Rôle:</strong> {user_data['role'] if user_data else 'N/A'} • 
-    📊 <strong>Opérations:</strong> {len(user_operations)} visibles
+    <strong>Session Securisee:</strong> {current_user} • 
+    <strong>Role:</strong> {user_data['role'] if user_data else 'N/A'} • 
+    <strong>Operations:</strong> {len(user_operations)} visibles
 </div>
 
-## 📊 Mes KPIs Personnalisés
+## Mes KPIs Personnalises
 
 <|layout|columns=1 1 1 1|gap=1rem|
 <div class="kpi-card kpi-operations">
     <div style="font-size: 2.5rem; font-weight: bold; margin: 0.5rem 0;">{user_kpis.get('operations_actives', 0) if user_kpis else 0}</div>
-    <div style="font-size: 1rem; font-weight: 600;">Mes Opérations</div>
-    <div style="font-size: 0.875rem; opacity: 0.9;">{user_kpis.get('operations_cloturees', 0) if user_kpis else 0} clôturées</div>
-    <|📂 Mon Portfolio|button|on_action=nav_portefeuille|class_name=kpi-button|>
+    <div style="font-size: 1rem; font-weight: 600;">Mes Operations</div>
+    <div style="font-size: 0.875rem; opacity: 0.9;">{user_kpis.get('operations_cloturees', 0) if user_kpis else 0} cloturees</div>
+    <|Mon Portfolio|button|on_action=nav_portefeuille|class_name=kpi-button|>
 </div>
 |
 <div class="kpi-card kpi-rem">
-    <div style="font-size: 2.5rem; font-weight: bold; margin: 0.5rem 0;">{int(user_kpis.get('rem_realisee_2024', 0)/1000) if user_kpis else 0}k€</div>
+    <div style="font-size: 2.5rem; font-weight: bold; margin: 0.5rem 0;">{int(user_kpis.get('rem_realisee_2024', 0)/1000) if user_kpis else 0}k EUR</div>
     <div style="font-size: 1rem; font-weight: 600;">Ma REM 2024</div>
-    <div style="font-size: 0.875rem; opacity: 0.9;">{user_kpis.get('taux_realisation_rem', 0) if user_kpis else 0}% réalisé</div>
-    <|💰 Mes REM|button|class_name=kpi-button|>
+    <div style="font-size: 0.875rem; opacity: 0.9;">{user_kpis.get('taux_realisation_rem', 0) if user_kpis else 0}% realise</div>
+    <|Mes REM|button|class_name=kpi-button|>
 </div>
 |
 <div class="kpi-card kpi-freins">
     <div style="font-size: 2.5rem; font-weight: bold; margin: 0.5rem 0;">{user_kpis.get('freins_actifs', 0) if user_kpis else 0}</div>
     <div style="font-size: 1rem; font-weight: 600;">Mes Freins</div>
     <div style="font-size: 0.875rem; opacity: 0.9;">{user_kpis.get('freins_critiques', 0) if user_kpis else 0} critiques</div>
-    <|🚨 Gérer|button|class_name=kpi-button|>
+    <|Gerer|button|class_name=kpi-button|>
 </div>
 |
 <div class="kpi-card kpi-echeances">
     <div style="font-size: 2.5rem; font-weight: bold; margin: 0.5rem 0;">{user_kpis.get('echeances_semaine', 0) if user_kpis else 0}</div>
-    <div style="font-size: 1rem; font-weight: 600;">Mes Échéances</div>
+    <div style="font-size: 1rem; font-weight: 600;">Mes Echeances</div>
     <div style="font-size: 0.875rem; opacity: 0.9;">{user_kpis.get('validations_requises', 0) if user_kpis else 0} validations</div>
-    <|📅 Planning|button|class_name=kpi-button|>
+    <|Planning|button|class_name=kpi-button|>
 </div>
 |>
 
-## 📋 Mes Opérations Récentes
+## Mes Operations Recentes
 
 <|{user_operations}|table|columns=nom,type_operation,commune,statut,avancement|page_size=5|>
 
 <div class="session-debug">
-🔍 <strong>Debug Multi-Users:</strong> User={current_user} | Ops={len(user_operations)} | Auth={authenticated}
+<strong>Debug Multi-Users:</strong> User={current_user} | Ops={len(user_operations)} | Auth={authenticated}
 </div>
 
-<|🚪 Déconnexion|button|on_action=logout_action|class_name=taipy-button|>
+<|Deconnexion|button|on_action=logout_action|class_name=taipy-button|>
 |>
 """
 
 def get_portefeuille_page():
-    """✅ Portefeuille avec opérations utilisateur isolées"""
+    """Portefeuille avec operations utilisateur isolees"""
     return css_styles + """
 <|part|render={not authenticated}|
-<div class="error-message">❌ Connexion requise</div>
-<|← Connexion|button|on_action={lambda s: navigate(s, "login")}|>
+<div class="error-message">Connexion requise</div>
+<|Connexion|button|on_action={lambda s: navigate(s, "login")}|>
 |>
 
 <|part|render={authenticated}|
 <div class="main-header">
-    <h1>📂 Mon Portefeuille Personnel</h1>
-    <h2>{user_data['nom'] if user_data else 'ACO'} - Mes Opérations</h2>
+    <h1>Mon Portefeuille Personnel</h1>
+    <h2>{user_data['nom'] if user_data else 'ACO'} - Mes Operations</h2>
 </div>
 
 <div class="user-info">
-👤 <strong>{current_user}</strong> • 📊 <strong>{len(user_operations)} opérations</strong> dans votre portefeuille
+<strong>{current_user}</strong> • <strong>{len(user_operations)} operations</strong> dans votre portefeuille
 </div>
 
-## 📋 Mes Opérations ({len(user_operations)} affichées)
+## Mes Operations ({len(user_operations)} affichees)
 
 <|layout|columns=1|
 <|part|render={len(user_operations) > 0}|
@@ -547,28 +535,28 @@ def get_portefeuille_page():
 
 <|part|render={len(user_operations) == 0}|
 <div style="text-align: center; padding: 2rem; color: #6B7280;">
-    📭 <strong>Aucune opération</strong> dans votre portefeuille<br>
-    Contactez votre responsable pour attribution d'opérations
+    <strong>Aucune operation</strong> dans votre portefeuille<br>
+    Contactez votre responsable pour attribution d'operations
 </div>
 |>
 |>
 
-<|← Dashboard|button|on_action=nav_dashboard|class_name=taipy-button|>
-<|🚪 Déconnexion|button|on_action=logout_action|class_name=taipy-button|>
+<|Dashboard|button|on_action=nav_dashboard|class_name=taipy-button|>
+<|Deconnexion|button|on_action=logout_action|class_name=taipy-button|>
 |>
 """
 
 # ==============================================================================
-# ✅ APPLICATION TAIPY MULTI-UTILISATEURS
+# APPLICATION TAIPY MULTI-UTILISATEURS
 # ==============================================================================
 
 def create_multiuser_app():
     """
-    ✅ Application Taipy avec gestion multi-utilisateurs sécurisée
-    🔒 CHAQUE SESSION EST ISOLÉE
+    Application Taipy avec gestion multi-utilisateurs securisee
+    CHAQUE SESSION EST ISOLEE
     """
     
-    # Pages avec state isolé
+    # Pages avec state isole
     pages = {
         "login": Markdown(get_login_page()),
         "dashboard": Markdown(get_dashboard_page()), 
@@ -580,15 +568,15 @@ def create_multiuser_app():
     
     # Hook d'initialisation pour chaque nouvelle session
     def on_init(state):
-        """Appelé pour chaque nouvelle session utilisateur"""
-        print(f"🔄 Nouvelle session initialisée")
+        """Appele pour chaque nouvelle session utilisateur"""
+        print("Nouvelle session initialisee")
         init_user_state(state)
     
     # Hook de fin de session  
     def on_session_end(state):
-        """Appelé quand une session se termine"""
+        """Appele quand une session se termine"""
         username = getattr(state, 'current_user', 'Anonyme')
-        print(f"🔚 Session terminée pour: {username}")
+        print(f"Session terminee pour: {username}")
     
     # Liaison des hooks
     gui.on_init = on_init
@@ -596,26 +584,26 @@ def create_multiuser_app():
     return gui
 
 # ==============================================================================
-# ✅ POINT D'ENTRÉE AVEC MULTI-UTILISATEURS
+# POINT D'ENTREE AVEC MULTI-UTILISATEURS ET PORT DYNAMIQUE
 # ==============================================================================
 
 if __name__ == "__main__":
-    print("🚀 Démarrage OPCOPILOT Multi-Utilisateurs")
-    print("🔒 Sessions isolées par utilisateur")
-    print("🧪 Test: Ouvrez plusieurs onglets avec différents comptes")
-    print("👥 Comptes: aco1/password1, aco2/password2, aco3/password3")
+    print("Demarrage OPCOPILOT Multi-Utilisateurs")
+    print("Sessions isolees par utilisateur")
+    print("Test: Ouvrez plusieurs onglets avec differents comptes")
+    print("Comptes: aco1/password1, aco2/password2, aco3/password3")
     
     app = create_multiuser_app()
     
-    # ✅ Port dynamique pour Railway/Heroku/déploiement cloud
+    # Port dynamique pour Railway/Heroku/deploiement cloud
     port = int(os.environ.get("PORT", 5000))
-    print(f"🌐 Démarrage sur port: {port}")
+    print(f"Demarrage sur port: {port}")
     
-    # Configuration serveur pour multi-utilisateurs + déploiement
+    # Configuration serveur pour multi-utilisateurs + deploiement
     app.run(
         title="OPCOPILOT v4.0 - Multi-Utilisateurs",
         port=port,
         debug=os.environ.get("ENV") != "production",  # Debug OFF en production
-        use_reloader=False,  # Reloader OFF pour déploiement
+        use_reloader=False,  # Reloader OFF pour deploiement
         host="0.0.0.0"  # Accepte connexions externes
     )
